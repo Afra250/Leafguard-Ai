@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f8ef">
+    <meta name="description" content="LeafGuard is an educational crop-leaf image classification prototype.">
+    <title>LeafGuard — Crop leaf classifier</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="LeafGuard home">
+        <span class="brand-mark" aria-hidden="true">✿</span>
+        <span>leaf<span class="brand-accent">guard</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a class="nav-link active" href="#home" data-page="home">Home</a>
+        <a class="nav-link" href="#about" data-page="about">About project</a>
+        <a class="nav-link" href="#model" data-page="model">Model information</a>
+      </nav>
+      <span class="prototype-tag"><span class="status-dot"></span> Student prototype</span>
+    </header>
+
+    <main>
+      <section id="home-page" class="page active" aria-labelledby="hero-title">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow"><span aria-hidden="true">✦</span> CROP HEALTH · IMAGE CLASSIFICATION</p>
+            <h1 id="hero-title">A little more insight<br>for every <em>leaf.</em></h1>
+            <p class="hero-description">Upload a clear leaf photo to see which classes in the trained model it most resembles. This is an educational classification result—not a diagnosis.</p>
+            <a class="button button-primary hero-button" href="#upload">Analyze a leaf <span aria-hidden="true">→</span></a>
+            <div class="hero-footnote"><span aria-hidden="true">◎</span> Private by default · your image is not saved</div>
+          </div>
+          <div class="hero-art" role="img" aria-label="Illustration of green leaves">
+            <div class="art-orbit orbit-one"></div>
+            <div class="art-orbit orbit-two"></div>
+            <div class="art-sun"></div>
+            <div class="leaf leaf-one"></div>
+            <div class="leaf leaf-two"></div>
+            <div class="leaf leaf-three"></div>
+            <div class="leaf leaf-four"></div>
+            <div class="art-stem"></div>
+            <span class="art-label label-top">GROW WITH CARE</span>
+            <span class="art-label label-bottom">OBSERVE · LEARN · VERIFY</span>
+          </div>
+        </div>
+
+        <section class="content-section" id="upload" aria-labelledby="upload-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">YOUR LEAF, A CLOSER LOOK</p>
+              <h2 id="upload-title">Start with a photo</h2>
+              <p class="section-description">For best results, use a well-lit photo with one leaf in focus.</p>
+            </div>
+            <span class="step-label"><span>01</span> UPLOAD</span>
+          </div>
+
+          <div class="workspace">
+            <div class="upload-panel">
+              <label class="drop-zone" id="drop-zone" for="image-input" tabindex="0">
+                <input id="image-input" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                <span class="upload-icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none"><path d="M16 21V7m0 0-5 5m5-5 5 5M7 19v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <strong>Drop your leaf photo here</strong>
+                <span class="drop-subtitle">or <span class="text-link">browse files</span></span>
+                <span class="file-types">JPG or PNG · up to 20 MB</span>
+              </label>
+              <p class="upload-error" id="upload-error" role="alert" hidden></p>
+
+              <div class="preview-card" id="preview-card" hidden>
+                <div class="preview-toolbar">
+                  <div><span class="preview-check">✓</span><span id="file-name">leaf-photo.jpg</span></div>
+                  <button class="text-button" id="remove-image" type="button">Remove</button>
+                </div>
+                <img id="image-preview" alt="Preview of selected crop leaf">
+              </div>
+
+              <button class="button button-primary classify-button" id="classify-button" type="button" disabled>
+                <span id="classify-label">Choose a photo to continue</span><span aria-hidden="true">→</span>
+              </button>
+              <p class="privacy-note"><span aria-hidden="true">▣</span> Your photo is processed in this browser and is not stored.</p>
+            </div>
+
+            <aside class="result-panel" aria-live="polite">
+              <div class="result-header">
+                <span class="result-icon" aria-hidden="true">✳</span>
+                <div><p class="eyebrow">YOUR RESULTS</p><h3>Leaf analysis</h3></div>
+              </div>
+              <div class="result-empty" id="result-empty">
+                <div class="empty-illustration" aria-hidden="true"><span>✿</span></div>
+                <p class="empty-title">Your results will grow here</p>
+                <p class="empty-copy">Add a leaf photo to begin. Predictions are limited to the classes in the trained model.</p>
+              </div>
+              <div class="result-content" id="result-content" hidden>
+                <p class="result-label">TOP MODEL CLASS</p>
+                <h4 class="prediction-name" id="prediction-name"></h4>
+                <p class="score-caption">Model score <strong id="prediction-score"></strong></p>
+                <p class="score-warning">A model score is not a guarantee of diagnostic correctness.</p>
+                <div class="top-list" id="top-list"></div>
+              </div>
+              <div class="model-message" id="model-message" role="status">
+                <span aria-hidden="true">ⓘ</span>
+                <p><strong>Model not installed yet.</strong> Add a trained TensorFlow.js model to <code>models/tfjs/</code> to enable real predictions. No results are simulated.</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="content-section supported-section" aria-labelledby="supported-title">
+          <div class="section-heading compact-heading">
+            <div><p class="eyebrow">TRANSPARENT BY DESIGN</p><h2 id="supported-title">What can it recognize?</h2></div>
+          </div>
+          <div class="supported-card" id="supported-classes">
+            <span class="supported-icon" aria-hidden="true">⌁</span>
+            <p>No supported classes are listed yet. They will appear here from the trained model metadata.</p>
+          </div>
+        </section>
+
+        <section class="disclaimer-banner" aria-labelledby="disclaimer-title">
+          <span class="disclaimer-icon" aria-hidden="true">!</span>
+          <div><h2 id="disclaimer-title">A helpful starting point, not a final answer.</h2><p>Always verify important crop-health decisions with a qualified agricultural expert.</p></div>
+        </section>
+
+        <section class="content-section history-section" aria-labelledby="history-title" id="history-section" hidden>
+          <div class="section-heading compact-heading"><div><p class="eyebrow">THIS BROWSER SESSION</p><h2 id="history-title">Recent predictions</h2></div></div>
+          <div class="history-table-wrap"><table class="history-table"><thead><tr><th>Image filename</th><th>Predicted class</th><th>Model score</th><th>Time</th></tr></thead><tbody id="history-body"></tbody></table></div>
+          <p class="privacy-note">History is held in memory for this page session only. Uploaded images are not stored.</p>
+        </section>
+      </section>
+
+      <section id="about-page" class="page document-page" aria-labelledby="about-title" hidden>
+        <p class="eyebrow">THE IDEA BEHIND THE APP</p><h1 id="about-title">About LeafGuard</h1>
+        <p class="document-lead">A student project exploring how image classification can help people learn about crop-leaf health—thoughtfully, transparently, and with clear limits.</p>
+        <div class="document-grid">
+          <article class="info-card"><span class="card-number">01</span><h2>The challenge</h2><p>Leaf symptoms can be difficult to recognize from a photo. This project explores ranking a leaf image against labels in a trained image-classification model.</p></article>
+          <article class="info-card"><span class="card-number">02</span><h2>The approach</h2><p>A browser interface previews JPG and PNG images, applies MobileNetV2 image scaling, and displays the model’s top supported classes when compatible model files are provided.</p></article>
+          <article class="info-card"><span class="card-number">03</span><h2>The boundary</h2><p>LeafGuard does not diagnose every plant disease, confirm the cause of a symptom, or recommend pesticide or treatment choices.</p></article>
+          <article class="info-card"><span class="card-number">04</span><h2>Privacy first</h2><p>Images are decoded and processed in your browser. The page does not upload or persist images. Prediction history stays in page memory.</p></article>
+        </div>
+      </section>
+
+      <section id="model-page" class="page document-page" aria-labelledby="model-title" hidden>
+        <p class="eyebrow">HOW THE CLASSIFIER WORKS</p><h1 id="model-title">Model information</h1>
+        <p class="document-lead">The intended model is a MobileNetV2 transfer-learning classifier. A model is not included, so this page will show its actual labels only after valid model metadata is installed.</p>
+        <div class="model-specs">
+          <div><span>IMAGE INPUT</span><strong>224 × 224 pixels · RGB</strong></div>
+          <div><span>PREPROCESSING</span><strong>MobileNetV2 scaling · −1 to +1</strong></div>
+          <div><span>MODEL FORMAT</span><strong>TensorFlow.js LayersModel</strong></div>
+          <div><span>MODEL OUTPUT</span><strong>Class scores · not guaranteed correctness</strong></div>
+        </div>
+        <div class="supported-card model-class-card" id="model-class-list"><span class="supported-icon" aria-hidden="true">⌁</span><p>No model metadata found. Supported classes are not known until you add a trained model.</p></div>
+        <div class="disclaimer-banner"><span class="disclaimer-icon" aria-hidden="true">!</span><div><h2>Scores need context.</h2><p>Scores can be overconfident and may not transfer from controlled images to real farm conditions.</p></div></div>
+      </section>
+
+      <section class="full-disclaimer" aria-label="Responsible use disclaimer">
+        <p>LeafGuard is an educational decision-support prototype. Predictions may be incorrect and are limited to the classes represented in the trained model. Model scores do not guarantee diagnostic correctness. Do not use predictions alone to choose pesticides or treatments. Consult a qualified agricultural expert for important farming decisions.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer"><a class="brand footer-brand" href="#home"><span class="brand-mark" aria-hidden="true">✿</span><span>leaf<span class="brand-accent">guard</span></span></a><span>Made for learning. Grounded in responsible use.</span><a href="#model">Model details <span aria-hidden="true">↗</span></a></footer>
+  </body>
+</html>
